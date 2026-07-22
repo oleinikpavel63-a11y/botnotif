@@ -1,0 +1,44 @@
+# Player Agent systemd unit (Linux / Raspberry Pi).
+#
+# Install:
+#   sudo cp infra/systemd/living-water-player-agent.service /etc/systemd/system/
+#   sudo useradd -r -s /usr/sbin/nologin -G audio lwagent   # audio group for ALSA/PulseAudio
+#   sudo mkdir -p /opt/living-water && sudo chown lwagent /opt/living-water
+#   # deploy the repo (or just apps/player-agent + packages/shared-contracts) to /opt/living-water
+#   # create /opt/living-water/.env from .env.example (chmod 600, owned by lwagent)
+#   sudo systemctl daemon-reload
+#   sudo systemctl enable --now living-water-player-agent
+#   journalctl -u living-water-player-agent -f    # view logs
+#
+# Audio device selection: set MPV_AUDIO_DEVICE in the .env
+#   list options with:  python -m agent.cli list-audio-devices
+#   ALSA:      alsa/plughw:CARD=Device,DEV=0
+#   PulseAudio: pulse/<sink-name>
+#   PipeWire is exposed via the PulseAudio compatibility layer (pulse/...).
+
+[Unit]
+Description=Living Water Audio Control — Player Agent
+After=network-online.target sound.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=lwagent
+Group=audio
+WorkingDirectory=/opt/living-water/apps/player-agent
+EnvironmentFile=/opt/living-water/.env
+# Use the project virtualenv created by scripts/install.sh
+ExecStart=/opt/living-water/.venv/bin/python -m agent.main
+Restart=always
+RestartSec=5
+# Emergency stop file is honoured even if the backend is unreachable.
+KillSignal=SIGINT
+TimeoutStopSec=15
+
+# Hardening
+NoNewPrivileges=true
+ProtectSystem=full
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target

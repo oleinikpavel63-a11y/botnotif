@@ -1,0 +1,23 @@
+# Ruff configuration for the whole monorepo (Python parts).
+target-version = "py311"
+line-length = 100
+
+extend-exclude = ["apps/mini-app", ".venv", "alembic/versions"]
+
+[lint]
+select = ["E", "F", "W", "I", "N", "UP", "B", "C4", "SIM", "RUF"]
+ignore = [
+    "E501",   # line length handled by formatter
+    "B008",   # FastAPI uses function calls (Depends/File) in defaults
+    "N818",   # exception naming (DomainError family)
+    "RUF001", # ambiguous unicode (Cyrillic strings are intentional)
+    "RUF002",
+    "RUF003",
+    "UP042",  # keep the explicit 3.11-compatible StrEnum base
+    "SIM105",
+]
+
+[lint.per-file-ignores]
+"**/tests/**" = ["N802", "S101", "SIM117", "RUF006"]
+"**/alembic/**" = ["F401", "E402"]
+"apps/backend/app/main.py" = ["B008"]

@@ -1,0 +1,38 @@
+{
+  "protocol_version": "1.0.0",
+  "description": "Agent <-> Server WebSocket protocol for Living Water Audio Control.",
+  "transport": "WebSocket (WSS in FULL). Agent dials out; no inbound ports on the camp device.",
+  "auth": "First frame from agent is {kind:'auth', device_id, token, app_version}. Server replies auth_ok/auth_error.",
+  "command_types": [
+    "PLAY_TRACK", "PAUSE", "RESUME", "STOP", "STOP_IMMEDIATE",
+    "SET_VOLUME", "SYNC_TRACK", "EMERGENCY_STOP", "SET_MAINTENANCE"
+  ],
+  "command_statuses": [
+    "RECEIVED", "ACCEPTED", "STARTED", "COMPLETED", "REJECTED", "FAILED", "EXPIRED"
+  ],
+  "player_states": ["idle", "playing", "paused", "stopped", "error"],
+  "device_statuses": ["ONLINE", "OFFLINE", "DEGRADED", "SYNCING", "ERROR", "MAINTENANCE"],
+  "sync_states": ["READY", "DOWNLOADING", "NOT_SYNCED", "ERROR"],
+  "priorities": ["EMERGENCY", "ANNOUNCEMENT", "SCHEDULED_EVENT", "MANUAL", "BACKGROUND"],
+  "agent_messages": {
+    "auth": {"device_id": "str", "token": "str", "app_version": "str", "audio_device": "str?"},
+    "heartbeat": {"state": "DeviceState"},
+    "status": {"state": "DeviceState"},
+    "command_update": {"command_id": "str", "status": "CommandStatus", "error": "str?", "state": "DeviceState?"},
+    "sync_status": {"track_id": "str", "state": "SyncState", "sha256": "str?", "size": "int?", "error": "str?"},
+    "pong": {}
+  },
+  "server_messages": {
+    "auth_ok": {"device_id": "str", "server_time": "iso8601", "heartbeat_interval_seconds": "int"},
+    "auth_error": {"reason": "str"},
+    "command": {"command": "CommandEnvelope"},
+    "sync": {"track": "TrackRef"},
+    "ping": {}
+  },
+  "rules": {
+    "ttl": "Immediate commands carry expires_at. Agent must reject expired commands.",
+    "idempotency": "Agent persists processed command_ids; a command_id is executed at most once, even across reconnect.",
+    "no_replay": "After reconnect the agent does not replay old PLAY/STOP commands.",
+    "heartbeat": "Every HEARTBEAT_INTERVAL_SECONDS. Backend marks OFFLINE after DEVICE_OFFLINE_AFTER_SECONDS."
+  }
+}

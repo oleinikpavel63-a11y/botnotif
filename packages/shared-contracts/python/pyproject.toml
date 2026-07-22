@@ -1,0 +1,13 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "lw-contracts"
+version = "1.0.0"
+description = "Shared command/protocol contracts for Living Water Audio Control"
+requires-python = ">=3.11"
+dependencies = ["pydantic>=2.6"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["lw_contracts"]

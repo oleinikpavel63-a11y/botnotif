@@ -1,0 +1,41 @@
+# Secrets & runtime
+.env
+.env.*
+!.env.example
+data/
+storage/music/*
+!storage/music/.gitkeep
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+agent-stop.flag
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.coverage
+htmlcov/
+dist/
+build/
+
+# Node / Mini App
+node_modules/
+apps/mini-app/dist/
+apps/mini-app/.vite/
+apps/mini-app/playwright-report/
+apps/mini-app/test-results/
+
+# Editors / OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+*.log

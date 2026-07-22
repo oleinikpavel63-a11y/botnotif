@@ -1,0 +1,71 @@
+# Living Water Audio Control — Docker Compose
+#
+#   LOCAL_MVP (backend + bot on one host, SQLite, long polling):
+#     docker compose --profile local up -d
+#     (run the Player Agent OUTSIDE Docker — it needs the audio device)
+#
+#   FULL (VPS: PostgreSQL, webhook, nginx + Mini App):
+#     docker compose --profile full up -d
+#
+# Configure everything via .env (copy from .env.example).
+
+services:
+  backend:
+    build:
+      context: .
+      dockerfile: infra/docker/backend.Dockerfile
+    profiles: ["local", "full"]
+    env_file: .env
+    environment:
+      # Bind the agent WS/API to this container in single-host setups.
+      AGENT_SERVER_URL: ${AGENT_SERVER_URL:-ws://127.0.0.1:8000/ws/agent}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./storage:/app/storage
+      - ./data:/app/data
+    restart: unless-stopped
+
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["full"]
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lwuser}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lwpass}
+      POSTGRES_DB: ${POSTGRES_DB:-livingwater}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-lwuser}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    profiles: ["full"]
+    command: ["redis-server", "--save", "60", "1"]
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  web:
+    build:
+      context: .
+      dockerfile: infra/docker/web.Dockerfile
+    profiles: ["full"]
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    restart: unless-stopped
+
+volumes:
+  pgdata:
+  redisdata:
