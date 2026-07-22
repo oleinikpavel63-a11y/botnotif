@@ -1,0 +1,17 @@
+{
+  "name": "Живая вода • Рупор",
+  "short_name": "Рупор",
+  "description": "Управление аудио лагеря — Telegram Mini App.",
+  "start_url": "./",
+  "display": "standalone",
+  "background_color": "#F6F3EA",
+  "theme_color": "#2F6B4F",
+  "icons": [
+    {
+      "src": "./favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+.vite/
+
+# TypeScript incremental build info
+*.tsbuildinfo
+
+# Playwright
+playwright-report/
+test-results/
+
+# Local env
+.env
+.env.*
+!.env.example
+
+# Editor / OS
+.DS_Store
+*.log
