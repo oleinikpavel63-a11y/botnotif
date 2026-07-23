@@ -16,6 +16,14 @@ help: ## Показать список команд
 $(VENV):
 	python3 -m venv $(VENV)
 
+.PHONY: quickstart
+quickstart: ## Быстрый бесплатный старт LOCAL_MVP (одна команда)
+	bash scripts/quickstart.sh
+
+.PHONY: tunnel
+tunnel: ## Бесплатный HTTPS-туннель для Mini App (Cloudflare)
+	bash scripts/free-tunnel.sh
+
 .PHONY: install
 install: $(VENV) ## Установить все зависимости в единый venv
 ifeq ($(UV),)
